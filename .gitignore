@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/*
+!data/heart.csv
+!data/processed.cleveland.data
+!data/heart-disease.names
+!data/Index
+!data/WARNING
+!data/README.md
+!data/prepare_heart.py
+mlruns/
+*.db

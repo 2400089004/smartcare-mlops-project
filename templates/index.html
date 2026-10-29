@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b132b">
+  <title>SmartCare | Health Monitoring</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">✚</span><span>smart<span class="brand-light">care</span><small>MLOps HEALTH PLATFORM</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item active" href="#overview"><span>▦</span> Overview</a>
+    <a class="nav-item" href="#monitoring"><span>⌁</span> Patient monitoring</a>
+    <a class="nav-item" href="#screening"><span>◎</span> Risk screening</a>
+    <a class="nav-item" href="#history"><span>◷</span> Health history</a>
+    <div class="nav-label nav-label-spaced">PLATFORM</div>
+    <a class="nav-item" href="#platform"><span>⌘</span> ML & observability</a>
+    <div class="sidebar-bottom"><div class="status-dot"></div><div><strong>API connection</strong><small id="apiStatus">Checking service…</small></div></div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar">
+      <div class="breadcrumb">Workspace <span>/</span> <strong>Overview</strong></div>
+      <div class="top-actions"><span class="env-pill"><i></i> DEMO ENVIRONMENT</span><div class="avatar">SC</div></div>
+    </header>
+    <section class="welcome" id="overview">
+      <div><div class="eyebrow">THURSDAY · HEALTH INTELLIGENCE</div><h1>Health overview<span class="period">.</span></h1><p>Your monitoring workspace for measurements, screening flags, and model service health.</p></div>
+      <button class="button button-primary" onclick="document.getElementById('screening').scrollIntoView({behavior:'smooth'})"><span>＋</span> New measurement</button>
+    </section>
+    <div class="notice"><span class="notice-icon">ⓘ</span><div><strong>Educational prototype — not a medical device</strong><p>Use synthetic/demo data only. Screening flags and model outputs are not diagnoses or medical advice.</p></div></div>
+    <section class="metric-grid" id="monitoring">
+      <article class="metric-card"><div class="metric-top"><span>HEART RATE</span><span class="metric-icon pink">♡</span></div><div class="metric-value" id="heartRate">— <small>bpm</small></div><div class="metric-foot"><span class="tiny-dot teal-dot"></span> Latest submitted value</div></article>
+      <article class="metric-card"><div class="metric-top"><span>OXYGEN SATURATION</span><span class="metric-icon blue">◉</span></div><div class="metric-value" id="spo2">— <small>%</small></div><div class="metric-foot"><span class="tiny-dot teal-dot"></span> Latest submitted value</div></article>
+      <article class="metric-card"><div class="metric-top"><span>TEMPERATURE</span><span class="metric-icon orange">♨</span></div><div class="metric-value" id="temperature">— <small>°C</small></div><div class="metric-foot"><span class="tiny-dot teal-dot"></span> Latest submitted value</div></article>
+      <article class="metric-card"><div class="metric-top"><span>SCREENING FLAGS</span><span class="metric-icon violet">⚑</span></div><div class="metric-value" id="flagCount">0 <small>active</small></div><div class="metric-foot"><span id="flagCaption">Based on saved demo records</span></div></article>
+    </section>
+    <section class="content-grid">
+      <article class="panel chart-panel">
+        <div class="panel-heading"><div><div class="eyebrow">OBSERVABILITY</div><h2>Measurement history</h2><p>Recent submitted measurements over time</p></div><span class="chart-legend"><i></i> Heart rate</span></div>
+        <div class="chart-wrap"><canvas id="historyChart" aria-label="Heart rate history chart"></canvas><div class="empty-chart" id="chartEmpty">Submit a measurement to start building your history.</div></div>
+      </article>
+      <article class="panel screening-panel" id="screening">
+        <div class="panel-heading"><div><div class="eyebrow">DATA INPUT</div><h2>New measurement</h2><p>Enter demo readings below</p></div><span class="form-symbol">＋</span></div>
+        <form id="measurementForm">
+          <div class="form-grid">
+            <label>Heart rate <span>bpm</span><input type="number" name="heart_rate_bpm" min="20" max="250" placeholder="e.g. 72"></label>
+            <label>SpO₂ <span>%</span><input type="number" name="spo2_percent" min="50" max="100" step="0.1" placeholder="e.g. 98"></label>
+            <label>Temperature <span>°C</span><input type="number" name="temperature_c" min="25" max="45" step="0.1" placeholder="e.g. 36.8"></label>
+            <label>Systolic BP <span>mmHg</span><input type="number" name="systolic_bp_mmhg" min="50" max="280" placeholder="e.g. 118"></label>
+            <label>Diastolic BP <span>mmHg</span><input type="number" name="diastolic_bp_mmhg" min="30" max="180" placeholder="e.g. 76"></label>
+            <label>Glucose <span>mg/dL</span><input type="number" name="glucose_mg_dl" min="20" max="800" step="0.1" placeholder="Optional"></label>
+          </div>
+          <div class="form-actions"><span class="form-hint">Enter at least one value.</span><button class="button button-primary" id="submitBtn" type="submit">Save measurement <span>→</span></button></div>
+        </form>
+        <div class="form-result" id="formResult" role="status" aria-live="polite"></div>
+      </article>
+    </section>
+    <section class="content-grid lower-grid" id="history">
+      <article class="panel table-panel">
+        <div class="panel-heading"><div><div class="eyebrow">RECENT ACTIVITY</div><h2>Latest records</h2><p>Saved to the local demo database</p></div><button class="button button-quiet" id="refreshBtn">↻ Refresh</button></div>
+        <div class="table-scroll"><table><thead><tr><th>TIME (UTC)</th><th>MEASUREMENTS</th><th>FLAGS</th></tr></thead><tbody id="historyBody"><tr><td colspan="3" class="empty-row">No records yet. Add a demo measurement.</td></tr></tbody></table></div>
+      </article>
+      <article class="panel model-panel" id="platform">
+        <div class="panel-heading"><div><div class="eyebrow">ML PLATFORM</div><h2>Model & service status</h2><p>Live status from the API</p></div><span class="pulse"></span></div>
+        <div class="model-status"><div class="model-symbol">✳</div><div class="model-copy"><strong>Heart risk model</strong><span id="modelStatus">Model artifact not loaded</span></div><span class="status-tag" id="modelTag">UNTRAINED</span></div>
+        <div class="model-status"><div class="model-symbol purple-symbol">⌘</div><div class="model-copy"><strong>API service</strong><span id="readyStatus">Checking readiness</span></div><span class="status-tag green-tag" id="readyTag">CHECKING</span></div>
+        <div class="observability-callout"><strong>Prometheus + Grafana ready</strong><p>API metrics are exposed at <code>/metrics</code>. Configure Prometheus to scrape the API and import the supplied Grafana dashboard.</p></div>
+      </article>
+    </section>
+    <section class="panel model-input-panel" id="heartModelDemo">
+      <div class="panel-heading"><div><div class="eyebrow">MODEL INFERENCE DEMO</div><h2>Heart disease model experiment</h2><p>Use invented sample values to test the trained model API.</p></div><span class="form-symbol">✳</span></div>
+      <div class="notice"><span class="notice-icon">ⓘ</span><div><strong>Educational model only</strong><p>Do not enter real patient information. The model score is not a clinical probability, diagnosis, or treatment recommendation.</p></div></div>
+      <form id="heartModelForm">
+        <div class="form-grid">
+          <label>Age <span>years</span><input type="number" name="age" min="1" max="120" required placeholder="e.g. 52"></label>
+          <label>Sex <span>dataset code</span><select name="sex" required><option value="">Select code</option><option value="0">0</option><option value="1">1</option></select></label>
+          <label>Chest pain type <span>1–4</span><select name="cp" required><option value="">Select code</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
+          <label>Resting BP <span>mmHg</span><input type="number" name="trestbps" min="50" max="300" required placeholder="e.g. 130"></label>
+          <label>Cholesterol <span>mg/dL</span><input type="number" name="chol" min="50" max="800" required placeholder="e.g. 230"></label>
+          <label>Fasting blood sugar > 120 <span>0/1</span><select name="fbs" required><option value="">Select code</option><option value="0">0</option><option value="1">1</option></select></label>
+          <label>Resting ECG <span>0–2</span><select name="restecg" required><option value="">Select code</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
+          <label>Max heart rate <span>bpm</span><input type="number" name="thalach" min="30" max="250" required placeholder="e.g. 150"></label>
+          <label>Exercise angina <span>0/1</span><select name="exang" required><option value="">Select code</option><option value="0">0</option><option value="1">1</option></select></label>
+          <label>ST depression <span>oldpeak</span><input type="number" name="oldpeak" min="0" max="10" step="0.1" required placeholder="e.g. 1.0"></label>
+          <label>Slope <span>1–3</span><select name="slope" required><option value="">Select code</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+          <label>Major vessels <span>ca 0–3</span><select name="ca" required><option value="">Select code</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+          <label>Thal <span>3, 6, or 7</span><select name="thal" required><option value="">Select code</option><option value="3">3</option><option value="6">6</option><option value="7">7</option></select></label>
+        </div>
+        <div class="form-actions"><span class="form-hint">Train the model before testing inference.</span><button class="button button-primary" id="heartModelBtn" type="submit">Run demo inference <span>→</span></button></div>
+      </form>
+      <div class="form-result" id="heartModelResult" role="status" aria-live="polite"></div>
+    </section>
+    <footer><span>SMARTCARE MLOPS <span class="footer-sep">/</span> PORTFOLIO BUILD</span><span>Built for learning · Use synthetic data only</span></footer>
+  </main>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
